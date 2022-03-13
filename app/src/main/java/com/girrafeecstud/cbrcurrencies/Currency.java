@@ -9,13 +9,11 @@ import androidx.room.TypeConverters;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-//@Entity(tableName = "currencies", primaryKeys = {"timeStamp", "currencyId"})
-@Entity(tableName = "currencies", primaryKeys = {"timestamp", "currencyid"})
+@Entity(tableName = "currencies", primaryKeys = {"currencyid"})
 @TypeConverters({LocalDateTimeConverter.class})
 public class Currency implements Serializable {
 
     @ColumnInfo(name = "timestamp")
-    @NonNull
     private LocalDateTime timeStamp;
 
     @ColumnInfo(name = "currencyid")

@@ -18,11 +18,11 @@ public interface CurrencyDao {
     void insert(Currency currency);
 
     // Get all data from table  with the same date
-    @Query("SELECT * FROM currencies WHERE timeStamp= :sTimeStamp")
-    List<Currency> getAll(@TypeConverters({LocalDateTimeConverter.class}) LocalDateTime sTimeStamp);
+    @Query("SELECT * FROM currencies")
+    List<Currency> getAll();
 
     // Get one currency value from selected date
-    @Query("SELECT * FROM currencies WHERE timeStamp= :sTimeStamp AND currencyid= :sCurrencyId")
-    Currency getAll(@TypeConverters({LocalDateTimeConverter.class}) LocalDateTime sTimeStamp, String sCurrencyId);
+    @Query("SELECT * FROM currencies WHERE currencyid= :sCurrencyId")
+    Currency getById(String sCurrencyId);
 
 }

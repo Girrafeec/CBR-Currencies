@@ -5,10 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,19 +21,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView currenciesRecView;
+
+    private ProgressBar gettingCurrencyProgressBar;
 
     private CurrencyDataBase currencyDataBase;
 
@@ -58,9 +66,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // Chek if app has network connection
+    private boolean hasNetworkConnection(){
+        ConnectivityManager connectivityManager = ((ConnectivityManager) getApplicationContext().getSystemService(MainActivity.this.CONNECTIVITY_SERVICE));
+        return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnectedOrConnecting();
+    }
+
+    // Chek if app has internet connection (we may have network connnection but no internet)
+    private boolean hasInternetConnection(){
+        try {
+            InetAddress address = InetAddress.getByName("www.google.com");
+            return !address.equals("");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     // Initialization of UI values
     private void initUiValues(){
         currenciesRecView = findViewById(R.id.currenciesRecView);
+        gettingCurrencyProgressBar = findViewById(R.id.gettingCurrencyProgressBar);
     }
 
     private void initDataBase(){
@@ -70,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
     // Check if database is empty
     private boolean isDatabaseEmpty(){
 
-        if (currencyDataBase.currencyDao().getAll(currencyDataBase.dateDao().getLastDate().getTimeStamp()).isEmpty())
+        if (currencyDataBase.currencyDao().getAll().isEmpty())
             return true;
         return false;
 
@@ -78,7 +104,11 @@ public class MainActivity extends AppCompatActivity {
 
     // Adding currencies to recycler view
     private void addCurrenciesToRecView(){
-        currencyAdapter = new CurrencyAdapter(new ArrayList<>(currencyDataBase.currencyDao().getAll(currencyDataBase.dateDao().getLastDate().getTimeStamp())),
+
+        // Remove progress bar when show recyvler view
+        gettingCurrencyProgressBar.setVisibility(View.GONE);
+
+        currencyAdapter = new CurrencyAdapter(new ArrayList<>(currencyDataBase.currencyDao().getAll()),
                 MainActivity.this);
 
         currenciesRecView.setAdapter(currencyAdapter);
@@ -87,13 +117,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void getCurrenciesJson(){
         new FetchCurrenciesJson().execute();
-    }
-
-    // Adding currentDateTime to database
-    private void addDateToDatabase(LocalDateTime currentDateTime){
-
-        currencyDataBase.dateDao().insert(new UpdateDateTime(currentDateTime));
-
     }
 
     // Adding currencies to database
@@ -128,10 +151,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute() {
+            gettingCurrencyProgressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
         protected void onPostExecute(Object o) {
-            addDateToDatabase(currentDateTime);
             addCurrenciesToDataBase(currentDateTime, currenciesJsonObject);
-            addCurrenciesToRecView();
+            //addCurrenciesToRecView();
         }
 
         @Override
@@ -156,6 +183,9 @@ public class MainActivity extends AppCompatActivity {
                 while((line = bufferedReader.readLine()) != null){
                     currenciesJsonData += line;
                 }
+
+                // Stop https connection
+                httpsURLConnection.disconnect();
 
                 if (!currenciesJsonData.isEmpty()){
                     JSONObject jsonObject = new JSONObject(currenciesJsonData);

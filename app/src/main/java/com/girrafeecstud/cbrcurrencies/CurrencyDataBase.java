@@ -5,7 +5,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {UpdateDateTime.class, Currency.class}, version = 1, exportSchema = false)
+@Database(entities = {Currency.class}, version = 1, exportSchema = false)
 public abstract class CurrencyDataBase extends RoomDatabase {
 
     // Define database name
@@ -27,9 +27,6 @@ public abstract class CurrencyDataBase extends RoomDatabase {
         // Return database instance
         return currencyDataBase;
     }
-
-    // Create Date Dao
-    public abstract DateDao dateDao();
 
     // Create currencies Dao
     public abstract CurrencyDao currencyDao();

@@ -38,6 +38,7 @@ public class CurrencyJsonParser {
             e.printStackTrace();
         }
 
+        /*
         Log.i("id",  id);
         Log.i("numcode", numCode);
         Log.i("charcode", charCode);
@@ -45,6 +46,7 @@ public class CurrencyJsonParser {
         Log.i("name", name);
         Log.i("value", value);
         Log.i("previous", previousValue);
+         */
 
         currency = new Currency(localDateTime, id, numCode, charCode, Integer.parseInt(nominal),
                 name, Double.parseDouble(value), Double.parseDouble(previousValue));
