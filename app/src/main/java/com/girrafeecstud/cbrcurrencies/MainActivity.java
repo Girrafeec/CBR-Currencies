@@ -1,17 +1,23 @@
 package com.girrafeecstud.cbrcurrencies;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ProgressBar gettingCurrencyProgressBar;
 
+    private BottomNavigationView bottomNavigationView;
+
     private CurrencyDataBase currencyDataBase;
 
     private CurrencyAdapter currencyAdapter;
@@ -64,6 +72,24 @@ public class MainActivity extends AppCompatActivity {
         else
             addCurrenciesToRecView();
 
+
+        bottomNavigationView.setSelectedItemId(R.id.rateMenuItem);
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.rateMenuItem:
+                        return true;
+                    case R.id.converterMenuItem:
+                        MainActivity.this.startActivity(new Intent(MainActivity.this, ConverterActivity.class));
+                        overridePendingTransition(0,0);
+                        break;
+                    default:
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
     // Chek if app has network connection
@@ -87,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
     private void initUiValues(){
         currenciesRecView = findViewById(R.id.currenciesRecView);
         gettingCurrencyProgressBar = findViewById(R.id.gettingCurrencyProgressBar);
+        bottomNavigationView = findViewById(R.id.mainBottomNavigationView);
     }
 
     private void initDataBase(){
