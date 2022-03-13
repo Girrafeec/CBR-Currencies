@@ -35,11 +35,15 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
 
     private BottomNavigationView bottomNavigationView;
 
+    private Toast backToast;
+
     private CurrencyDataBase currencyDataBase;
 
     private ArrayList<Currency> currenciesArrayList;
 
     private ArrayList<String> rubArrayList;
+
+    private long backPressedTime;
 
     private static int converterMode = 1;
 
@@ -57,6 +61,22 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+            super.onBackPressed();
+            backToast.cancel();
+            finishAffinity();
+            return;
+        }
+
+        backToast = Toast.makeText(this, "Для выхода нажмите назад ещё раз", Toast.LENGTH_SHORT);
+        backToast.show();
+
+        backPressedTime = System.currentTimeMillis();
     }
 
     @Override
@@ -99,12 +119,10 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (converterMode){
                     case 0:
-                        Toast.makeText(ConverterActivity.this, rubArrayList.get(i), Toast.LENGTH_SHORT).show();
                         break;
                     case 1:
                         // Set second factor as chosen valute
                         secondFactor = currenciesArrayList.get(i).getValue();
-                        Toast.makeText(ConverterActivity.this, currenciesArrayList.get(i).getCharCode(), Toast.LENGTH_SHORT).show();
                         break;
                     default:
                         break;
@@ -124,11 +142,8 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
                     case 0:
                         // Set denominator as chosen valute
                         denominator = currenciesArrayList.get(i).getValue();
-                        Toast.makeText(ConverterActivity.this, currenciesArrayList.get(i).getCharCode(), Toast.LENGTH_SHORT).show();
                         break;
                     case 1:
-                        // Set denominator as chosen valute
-                        Toast.makeText(ConverterActivity.this, rubArrayList.get(i), Toast.LENGTH_SHORT).show();
                         break;
                     default:
                         break;

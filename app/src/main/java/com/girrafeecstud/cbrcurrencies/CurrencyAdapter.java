@@ -129,6 +129,13 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
         }
     }
 
+    // Clear rec view adapter
+    public void clear() {
+        int size = currencies.size();
+        currencies.clear();
+        notifyItemRangeRemoved(0, size);
+    }
+
     @Override
     public int getItemCount() {
         return currencies.size();

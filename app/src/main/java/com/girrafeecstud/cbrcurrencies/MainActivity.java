@@ -5,8 +5,12 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -15,6 +19,8 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -42,11 +48,17 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends AppCompatActivity {
 
+    private TextView fetchingDateTimeInfo;
+
     private RecyclerView currenciesRecView;
 
     private ProgressBar gettingCurrencyProgressBar;
 
+    private SwipeRefreshLayout swipeRefreshLayout;
+
     private BottomNavigationView bottomNavigationView;
+
+    private Toast backToast;
 
     private CurrencyDataBase currencyDataBase;
 
@@ -54,7 +66,28 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Currency> currencyDataArrayList = new ArrayList<Currency>();
 
+    private long backPressedTime;
+
     private final static String CBR_CURRENCIES_JSON_URL = "https://www.cbr-xml-daily.ru/daily_json.js";
+
+    public static final String SHARED_PREFS = "SHARED_PREFS";
+    public static final String LAST_FETCHING_DATE_TIME = "LAST_FETCHING_DATE_TIME";
+
+    @Override
+    public void onBackPressed() {
+
+        if (backPressedTime + 2000 > System.currentTimeMillis()) {
+            super.onBackPressed();
+            backToast.cancel();
+            finishAffinity();
+            return;
+        }
+
+        backToast = Toast.makeText(this, "Для выхода нажмите назад ещё раз", Toast.LENGTH_SHORT);
+        backToast.show();
+
+        backPressedTime = System.currentTimeMillis();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         else
             addCurrenciesToRecView();
 
+        setFetchingInfo();
 
         bottomNavigationView.setSelectedItemId(R.id.rateMenuItem);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -88,6 +122,19 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
                 return false;
+            }
+        });
+
+        // Actions for swipe refresh layout
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if (currencyAdapter.getItemCount() != 0){
+                    currencyAdapter.clear();
+                    currencyAdapter.notifyDataSetChanged();
+                    getCurrenciesJson();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         });
     }
@@ -111,9 +158,44 @@ public class MainActivity extends AppCompatActivity {
 
     // Initialization of UI values
     private void initUiValues(){
+        fetchingDateTimeInfo = findViewById(R.id.fetchingDateTimeInfoTxt);
         currenciesRecView = findViewById(R.id.currenciesRecView);
         gettingCurrencyProgressBar = findViewById(R.id.gettingCurrencyProgressBar);
+        swipeRefreshLayout = findViewById(R.id.refreshCurrenciesLayout);
         bottomNavigationView = findViewById(R.id.mainBottomNavigationView);
+    }
+
+    // Setting info about last fetcing date and time
+    private void setFetchingInfo(){
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        String lastFetchingTime = sharedPreferences.getString(LAST_FETCHING_DATE_TIME, "");
+
+        if (!lastFetchingTime.equals("")) {
+            LocalDateTime localDateTime = LocalDateTime.parse(lastFetchingTime);
+
+            // Add 0 to string month value for minutes from 0 to 9
+            String month = String.valueOf(localDateTime.getMonthValue());
+            switch (month.length()){
+                case 1:
+                    month = "0" + month;
+                    break;
+                default:
+                    break;
+            }
+
+            // Add 0 to string minutes value for minutes from 0 to 9
+            String minutes = String.valueOf(localDateTime.getMinute());
+            switch (minutes.length()){
+                case 1:
+                    minutes = "0" + minutes;
+                    break;
+                default:
+                    break;
+            }
+
+            fetchingDateTimeInfo.setText("Обновлено " + localDateTime.getDayOfMonth() + "." + month + "." + localDateTime.getYear() +
+                    " в " + localDateTime.getHour() + ":" + minutes);
+        }
     }
 
     private void initDataBase(){
@@ -129,11 +211,31 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void getCurrenciesInBackground(){
+
+        AlarmManager mAlarmManger = (AlarmManager) getSystemService(MainActivity.this.ALARM_SERVICE);
+
+        //Create pending intent and register it
+        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+
+        // Set timer you want alarm to work
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        // Set that timer as a RTC Wakeup to alarm manager object
+        mAlarmManger.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+    }
+
     // Adding currencies to recycler view
     private void addCurrenciesToRecView(){
 
         // Remove progress bar when show recyvler view
         gettingCurrencyProgressBar.setVisibility(View.GONE);
+        // Set enabler swipre refresh layout
+        swipeRefreshLayout.setEnabled(true);
 
         currencyAdapter = new CurrencyAdapter(new ArrayList<>(currencyDataBase.currencyDao().getAll()),
                 MainActivity.this);
@@ -162,6 +264,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // Save last fetching date and time to shared preferences
+    private void saveSharedPreferences(LocalDateTime localDateTime){
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(LAST_FETCHING_DATE_TIME, localDateTime.toString());
+        editor.apply();
+    }
+
     // Class for background fetching data from Json url
     private class FetchCurrenciesJson extends AsyncTask{
 
@@ -179,13 +289,16 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
+            swipeRefreshLayout.setEnabled(false);
             gettingCurrencyProgressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(Object o) {
             addCurrenciesToDataBase(currentDateTime, currenciesJsonObject);
-            //addCurrenciesToRecView();
+            saveSharedPreferences(currentDateTime);
+            setFetchingInfo();
+            addCurrenciesToRecView();
         }
 
         @Override
