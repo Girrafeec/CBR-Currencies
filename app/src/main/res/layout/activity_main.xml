@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/fetchingDateTimeInfoTxt"
-        android:text="33434"
+        android:text=""
         android:textSize="20dp"
         android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"

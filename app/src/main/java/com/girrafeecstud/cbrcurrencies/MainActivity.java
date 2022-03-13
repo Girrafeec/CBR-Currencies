@@ -3,14 +3,18 @@ package com.girrafeecstud.cbrcurrencies;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.icu.text.UnicodeSetSpanner;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -72,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String SHARED_PREFS = "SHARED_PREFS";
     public static final String LAST_FETCHING_DATE_TIME = "LAST_FETCHING_DATE_TIME";
+    public static final String FIRST_LAUNCH = "FIRST_LAUNCH";
+
+    public static final String EXTRA_MAIN_BACKGROUND_METHOD = "EXTRA_MAIN_BACKGROUND_METHOD";
 
     @Override
     public void onBackPressed() {
@@ -107,6 +114,13 @@ public class MainActivity extends AppCompatActivity {
 
         setFetchingInfo();
 
+        // Add background alarm task after first launch
+        if (isFirstLaunch()){
+            setBackgroundAlarmManager();
+            saveFirstLaunchInfo();
+        }
+
+        // Actions for bottom navigation view
         bottomNavigationView.setSelectedItemId(R.id.rateMenuItem);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -211,18 +225,51 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void getCurrenciesInBackground(){
+    // Check for first app launch
+    private boolean isFirstLaunch(){
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        boolean firstStart = sharedPreferences.getBoolean(FIRST_LAUNCH, true);
+
+        if (firstStart)
+            return true;
+        return false;
+    }
+
+    // Get intent
+    private void getIntentFromMainActivity(){
+        Intent intent = getIntent();
+        if (intent.getStringExtra(MainActivity.EXTRA_MAIN_BACKGROUND_METHOD).equals("getCurrenciesJson")){
+            //getCurrenciesJson();
+            NotificationCompat.Builder builder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle("Title")
+                            .setContentText("Notification text");
+
+            Notification notification = builder.build();
+
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.notify(1, notification);
+
+        }
+    }
+
+    // TODO
+    // Set alarm manager for every day in 12:00
+    private void setBackgroundAlarmManager(){
 
         AlarmManager mAlarmManger = (AlarmManager) getSystemService(MainActivity.this.ALARM_SERVICE);
 
         //Create pending intent and register it
-        Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        Intent intent = new Intent(MainActivity.this, JsonFetchingBackgroundActivity.class);
+        intent.putExtra(MainActivity.EXTRA_MAIN_BACKGROUND_METHOD, "getCurrenciesJson");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
 
         // Set timer you want alarm to work
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 12);
-        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 21);
+        calendar.set(Calendar.MINUTE, 2);
         calendar.set(Calendar.SECOND, 0);
 
         // Set that timer as a RTC Wakeup to alarm manager object
@@ -242,10 +289,6 @@ public class MainActivity extends AppCompatActivity {
 
         currenciesRecView.setAdapter(currencyAdapter);
         currenciesRecView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
-    }
-
-    private void getCurrenciesJson(){
-        new FetchCurrenciesJson().execute();
     }
 
     // Adding currencies to database
@@ -270,6 +313,18 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(LAST_FETCHING_DATE_TIME, localDateTime.toString());
         editor.apply();
+    }
+
+    // Save info about first launch
+    private void saveFirstLaunchInfo(){
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(FIRST_LAUNCH, false);
+        editor.apply();
+    }
+
+    private void getCurrenciesJson(){
+        new FetchCurrenciesJson().execute();
     }
 
     // Class for background fetching data from Json url
