@@ -28,7 +28,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/currencyValue"
+            android:id="@+id/currencyValueTxt"
             android:text="120.2345"
             android:textSize="20dp"
             android:layout_marginLeft="30dp"

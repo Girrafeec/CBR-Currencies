@@ -1,11 +1,11 @@
 package com.girrafeecstud.cbrcurrencies;
 
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Room;
-import android.arch.persistence.room.RoomDatabase;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {Date.class, Currency.class}, version = 1, exportSchema = false)
+@Database(entities = {UpdateDateTime.class, Currency.class}, version = 1, exportSchema = false)
 public abstract class CurrencyDataBase extends RoomDatabase {
 
     // Define database name

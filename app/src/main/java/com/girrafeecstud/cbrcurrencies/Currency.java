@@ -1,19 +1,25 @@
 package com.girrafeecstud.cbrcurrencies;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Entity(tableName = "currencies", primaryKeys = {"timeStamp", "currencyId"})
+//@Entity(tableName = "currencies", primaryKeys = {"timeStamp", "currencyId"})
+@Entity(tableName = "currencies", primaryKeys = {"timestamp", "currencyid"})
+@TypeConverters({LocalDateTimeConverter.class})
 public class Currency implements Serializable {
 
-    @ColumnInfo(name = "timeStamp")
+    @ColumnInfo(name = "timestamp")
+    @NonNull
     private LocalDateTime timeStamp;
 
     @ColumnInfo(name = "currencyid")
+    @NonNull
     private String currencyId;
 
     @ColumnInfo (name = "numcode")
@@ -29,10 +35,22 @@ public class Currency implements Serializable {
     private String name;
 
     @ColumnInfo (name = "value")
-    private float value;
+    private double value;
 
     @ColumnInfo (name = "previousvalue")
-    private String previousValue;
+    private double previousValue;
+
+    public Currency(LocalDateTime timeStamp, String currencyId, String numCode,
+                    String charCode, int nominal, String name, double value, double previousValue) {
+        this.timeStamp = timeStamp;
+        this.currencyId = currencyId;
+        this.numCode = numCode;
+        this.charCode = charCode;
+        this.nominal = nominal;
+        this.name = name;
+        this.value = value;
+        this.previousValue = previousValue;
+    }
 
     public LocalDateTime getTimeStamp() {
         return timeStamp;
@@ -42,11 +60,11 @@ public class Currency implements Serializable {
         this.timeStamp = timeStamp;
     }
 
-    public String getCurrencyID() {
+    public String getCurrencyId() {
         return currencyId;
     }
 
-    public void setCurrencyID(String currencyId) {
+    public void setCurrencyId(String currencyId) {
         currencyId = currencyId;
     }
 
@@ -82,7 +100,7 @@ public class Currency implements Serializable {
         this.name = name;
     }
 
-    public float getValue() {
+    public double getValue() {
         return value;
     }
 
@@ -90,11 +108,11 @@ public class Currency implements Serializable {
         this.value = value;
     }
 
-    public String getPreviousValue() {
+    public double getPreviousValue() {
         return previousValue;
     }
 
-    public void setPreviousValue(String previousValue) {
+    public void setPreviousValue(double previousValue) {
         this.previousValue = previousValue;
     }
 }

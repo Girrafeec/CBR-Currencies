@@ -1,13 +1,14 @@
 package com.girrafeecstud.cbrcurrencies;
 
-import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.Query;
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.Query;
+import androidx.room.TypeConverters;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
+import static androidx.room.OnConflictStrategy.REPLACE;
 
 @Dao
 public interface CurrencyDao {
@@ -18,10 +19,10 @@ public interface CurrencyDao {
 
     // Get all data from table  with the same date
     @Query("SELECT * FROM currencies WHERE timeStamp= :sTimeStamp")
-    List<Currency> getAll(LocalDateTime sTimeStamp);
+    List<Currency> getAll(@TypeConverters({LocalDateTimeConverter.class}) LocalDateTime sTimeStamp);
 
     // Get one currency value from selected date
     @Query("SELECT * FROM currencies WHERE timeStamp= :sTimeStamp AND currencyid= :sCurrencyId")
-    Currency getAll(LocalDateTime sTimeStamp, String sCurrencyId);
+    Currency getAll(@TypeConverters({LocalDateTimeConverter.class}) LocalDateTime sTimeStamp, String sCurrencyId);
 
 }
