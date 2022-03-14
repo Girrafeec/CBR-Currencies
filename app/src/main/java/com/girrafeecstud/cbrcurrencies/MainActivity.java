@@ -4,12 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     private long backPressedTime;
 
-    private final static String CBR_CURRENCIES_JSON_URL = "https://www.cbr-xml-daily.ru/daily_json.js";
+    public final static String CBR_CURRENCIES_JSON_URL = "https://www.cbr-xml-daily.ru/daily_json.js";
 
     public static final String SHARED_PREFS = "SHARED_PREFS";
     public static final String LAST_FETCHING_DATE_TIME = "LAST_FETCHING_DATE_TIME";
@@ -143,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                // !Objects.isNull(currencyAdapter) &&
                 if (currencyAdapter.getItemCount() != 0){
                     currencyAdapter.clear();
                     currencyAdapter.notifyDataSetChanged();
@@ -159,15 +162,18 @@ public class MainActivity extends AppCompatActivity {
         return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 
+    // TODO убрать процедуру из програмы вообще?
     // Chek if app has internet connection (we may have network connnection but no internet)
-    private boolean hasInternetConnection(){
-        try {
-            InetAddress address = InetAddress.getByName("www.google.com");
-            return !address.equals("");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+    private boolean hasInternetConnection() {
+        {
+            try {
+                InetAddress address = InetAddress.getByName("www.google.com");
+                return !address.equals("");
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            return false;
         }
-        return false;
     }
 
     // Initialization of UI values
@@ -212,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Initialization of database
     private void initDataBase(){
         currencyDataBase = CurrencyDataBase.getInstance(MainActivity.this);
     }
@@ -235,30 +242,11 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    // Get intent
-    private void getIntentFromMainActivity(){
-        Intent intent = getIntent();
-        if (intent.getStringExtra(MainActivity.EXTRA_MAIN_BACKGROUND_METHOD).equals("getCurrenciesJson")){
-            //getCurrenciesJson();
-            NotificationCompat.Builder builder =
-                    new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.mipmap.ic_launcher)
-                            .setContentTitle("Title")
-                            .setContentText("Notification text");
-
-            Notification notification = builder.build();
-
-            NotificationManager notificationManager =
-                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.notify(1, notification);
-
-        }
-    }
-
     // TODO
     // Set alarm manager for every day in 12:00
     private void setBackgroundAlarmManager(){
 
+        //TODO после полной проверки установить время на 12:00!!!
         AlarmManager mAlarmManger = (AlarmManager) getSystemService(MainActivity.this.ALARM_SERVICE);
 
         //Create pending intent and register it
@@ -268,12 +256,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Set timer you want alarm to work
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 21);
-        calendar.set(Calendar.MINUTE, 2);
+        calendar.set(Calendar.HOUR_OF_DAY, 11);
+        calendar.set(Calendar.MINUTE, 40);
         calendar.set(Calendar.SECOND, 0);
 
-        // Set that timer as a RTC Wakeup to alarm manager object
-        mAlarmManger.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        // Set that timer as a RTC to alarm manager object and repeat it every day by parameter INTERVAL_DAY
+        mAlarmManger.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+
+        Log.i("alarm", "set");
     }
 
     // Adding currencies to recycler view
@@ -324,7 +314,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getCurrenciesJson(){
-        new FetchCurrenciesJson().execute();
+        if (hasNetworkConnection())
+            new FetchCurrenciesJson().execute();
+        else
+            Toast.makeText(MainActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
     }
 
     // Class for background fetching data from Json url

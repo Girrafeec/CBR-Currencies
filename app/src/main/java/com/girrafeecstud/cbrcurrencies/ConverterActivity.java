@@ -45,7 +45,7 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
 
     private long backPressedTime;
 
-    private static int converterMode = 1;
+    private static int converterMode = 0;
 
     private static double numerator = 0, denominator = 0, firstFactor = 0, secondFactor = 0;
 
