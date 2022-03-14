@@ -14,8 +14,10 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.icu.text.UnicodeSetSpanner;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
@@ -24,10 +26,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
@@ -52,9 +57,11 @@ import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView fetchingDateTimeInfo;
+
+    private Button retryConnection;
 
     private RecyclerView currenciesRecView;
 
@@ -63,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private BottomNavigationView bottomNavigationView;
+
+    private LinearLayout noInternetLinLay;
 
     private Toast backToast;
 
@@ -99,6 +108,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.noInternetRetryBtn:
+                noInternetLinLay.setVisibility(View.GONE);
+                getCurrenciesJson();
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -121,6 +142,8 @@ public class MainActivity extends AppCompatActivity {
             setBackgroundAlarmManager();
             saveFirstLaunchInfo();
         }
+
+        retryConnection.setOnClickListener(this);
 
         // Actions for bottom navigation view
         bottomNavigationView.setSelectedItemId(R.id.rateMenuItem);
@@ -145,13 +168,13 @@ public class MainActivity extends AppCompatActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // !Objects.isNull(currencyAdapter) &&
-                if (currencyAdapter.getItemCount() != 0){
+                if (hasNetworkConnection() &&
+                        !Objects.isNull(currencyAdapter) && currencyAdapter.getItemCount() != 0){
                     currencyAdapter.clear();
                     currencyAdapter.notifyDataSetChanged();
-                    getCurrenciesJson();
-                    swipeRefreshLayout.setRefreshing(false);
                 }
+                getCurrenciesJson();
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -162,27 +185,15 @@ public class MainActivity extends AppCompatActivity {
         return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 
-    // TODO убрать процедуру из програмы вообще?
-    // Chek if app has internet connection (we may have network connnection but no internet)
-    private boolean hasInternetConnection() {
-        {
-            try {
-                InetAddress address = InetAddress.getByName("www.google.com");
-                return !address.equals("");
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
-            return false;
-        }
-    }
-
     // Initialization of UI values
     private void initUiValues(){
         fetchingDateTimeInfo = findViewById(R.id.fetchingDateTimeInfoTxt);
+        retryConnection = findViewById(R.id.noInternetRetryBtn);
         currenciesRecView = findViewById(R.id.currenciesRecView);
         gettingCurrencyProgressBar = findViewById(R.id.gettingCurrencyProgressBar);
         swipeRefreshLayout = findViewById(R.id.refreshCurrenciesLayout);
         bottomNavigationView = findViewById(R.id.mainBottomNavigationView);
+        noInternetLinLay = findViewById(R.id.noInternetConnectionLinLay);
     }
 
     // Setting info about last fetcing date and time
@@ -242,11 +253,9 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    // TODO
     // Set alarm manager for every day in 12:00
     private void setBackgroundAlarmManager(){
 
-        //TODO после полной проверки установить время на 12:00!!!
         AlarmManager mAlarmManger = (AlarmManager) getSystemService(MainActivity.this.ALARM_SERVICE);
 
         //Create pending intent and register it
@@ -256,12 +265,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Set timer you want alarm to work
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 11);
-        calendar.set(Calendar.MINUTE, 40);
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
 
         // Set that timer as a RTC to alarm manager object and repeat it every day by parameter INTERVAL_DAY
-        mAlarmManger.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        mAlarmManger.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
 
         Log.i("alarm", "set");
     }
@@ -269,9 +278,13 @@ public class MainActivity extends AppCompatActivity {
     // Adding currencies to recycler view
     private void addCurrenciesToRecView(){
 
+        // Disable no internet message
+        noInternetLinLay.setVisibility(View.GONE);
+
         // Remove progress bar when show recyvler view
         gettingCurrencyProgressBar.setVisibility(View.GONE);
         // Set enabler swipre refresh layout
+        swipeRefreshLayout.setVisibility(View.VISIBLE);
         swipeRefreshLayout.setEnabled(true);
 
         currencyAdapter = new CurrencyAdapter(new ArrayList<>(currencyDataBase.currencyDao().getAll()),
@@ -313,11 +326,24 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    private void getCurrenciesJson(){
-        if (hasNetworkConnection())
-            new FetchCurrenciesJson().execute();
-        else
+    // Cancel all notifications after getting json
+    private void cancelAllNotifications(){
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
+    }
+
+    private void getCurrenciesJson() {
+        if (hasNetworkConnection()) {
+            noInternetLinLay.setVisibility(View.GONE);
+        new FetchCurrenciesJson().execute();
+        }
+        else {
             Toast.makeText(MainActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
+            if (isDatabaseEmpty()) {
+                swipeRefreshLayout.setVisibility(View.GONE);
+                noInternetLinLay.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     // Class for background fetching data from Json url
@@ -347,6 +373,7 @@ public class MainActivity extends AppCompatActivity {
             saveSharedPreferences(currentDateTime);
             setFetchingInfo();
             addCurrenciesToRecView();
+            cancelAllNotifications();
         }
 
         @Override

@@ -7,10 +7,13 @@ import androidx.core.app.NotificationManagerCompat;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -45,9 +48,13 @@ public class JsonFetchingBackgroundActivity extends BroadcastReceiver {
         initDataBase(context);
 
         if (intent.getStringExtra(MainActivity.EXTRA_MAIN_BACKGROUND_METHOD).equals("getCurrenciesJson")) {
-            if (hasNetworkConnection(context) /*&& hasInternetConnection()*/){
+            if (hasNetworkConnection(context)){
                 getCurrenciesJson(context);
                 showSuccessNotification(context);
+            }
+            else {
+                Log.i("background json", "unsucceed");
+                showUnsuccessNotification(context);
             }
         }
     }
@@ -60,15 +67,28 @@ public class JsonFetchingBackgroundActivity extends BroadcastReceiver {
     // Show refresh success notification
     private void showSuccessNotification(Context context){
 
+        // Setting bitmap for large icon
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher_foreground, options);
+
         NotificationChannel channel = new NotificationChannel("FetcingCurrenciesNotification", "FetcingCurrenciesNotification", NotificationManager.IMPORTANCE_DEFAULT);
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         manager.createNotificationChannel(channel);
 
+        // Create PendingIntent
+        Intent resultIntent = new Intent(context, MainActivity.class);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "FetcingCurrenciesNotification")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO поставить иконку приложения в конце
+                .setLargeIcon(bitmap)
                 .setContentTitle("Обновление курсов")
                 .setContentText("Курсы валют ЦБ обновлены")
-                .setAutoCancel(true);
+                .setContentIntent(resultPendingIntent)
+                .setAutoCancel(true)
+                .setDefaults(Notification.DEFAULT_LIGHTS)
+                .setDefaults(Notification.DEFAULT_VIBRATE);
 
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
         notificationManagerCompat.notify(1, builder.build());
@@ -76,21 +96,45 @@ public class JsonFetchingBackgroundActivity extends BroadcastReceiver {
         Log.i("notification", "showed");
     }
 
+    // Show refresh unsuccess notification
+    private void showUnsuccessNotification(Context context){
+
+        // Setting bitmap for large icon
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher_foreground, options);
+
+        NotificationChannel channel = new NotificationChannel("FetcingCurrenciesNotification", "FetcingCurrenciesNotification", NotificationManager.IMPORTANCE_DEFAULT);
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(channel);
+
+        // Create PendingIntent
+        Intent resultIntent = new Intent(context, MainActivity.class);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "FetcingCurrenciesNotification")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setLargeIcon(bitmap)
+                .setContentTitle("Обновление курсов")
+                .setContentText("Невозможно обновить курсы валют ЦБ без наличия доступа в интернет")
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Невозможно обновить курсы валют ЦБ без наличия доступа в интернет"))
+                .setContentIntent(resultPendingIntent)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setDefaults(Notification.DEFAULT_LIGHTS)
+                .setDefaults(Notification.DEFAULT_VIBRATE);
+
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+        notificationManagerCompat.notify(1, builder.build());
+
+        Log.i("unsuccess notification", "showed");
+    }
+
     // Chek if app has network connection
     private boolean hasNetworkConnection(Context context){
         ConnectivityManager connectivityManager = ((ConnectivityManager) context.getApplicationContext().getSystemService(context.CONNECTIVITY_SERVICE));
         return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnectedOrConnecting();
-    }
-
-    // Chek if app has internet connection (we may have network connnection but no internet)
-    private boolean hasInternetConnection(){
-        try {
-            InetAddress address = InetAddress.getByName("www.google.com");
-            return !address.equals("");
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
     // Adding currencies to database

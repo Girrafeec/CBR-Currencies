@@ -1,11 +1,13 @@
 package com.girrafeecstud.cbrcurrencies;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,16 +43,36 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CurrencyAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CurrencyAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.currencyCharCode.setText(currencies.get(position).getCharCode());
-        holder.currencyValue.setText(String.valueOf(currencies.get(position).getValue()));
+        holder.currencyValue.setText(String.valueOf(currencies.get(position).getValue()) + " ₽");
         holder.currencyCountryImg.setImageResource(getCountryImage(currencies.get(position).getNumCode()));
 
         holder.name.setText("Наименование: " + currencies.get(position).getName());
         holder.numCode.setText("Цифровой код: " + currencies.get(position).getNumCode());
         holder.nominal.setText("Единиц: " + String.valueOf(currencies.get(position).getNominal()));
-        holder.smallCurrencyValue.setText("Курс: " + String.valueOf(currencies.get(position).getValue()));
-        holder.previousCurrencyValue.setText("Предыдущий курс: " + String.valueOf(currencies.get(position).getPreviousValue()));
+        holder.smallCurrencyValue.setText("Курс: " + String.valueOf(currencies.get(position).getValue()) + " ₽");
+        holder.previousCurrencyValue.setText("Предыдущий курс: " + String.valueOf(currencies.get(position).getPreviousValue()) + " ₽");
+
+        boolean currencyExpanded = currencies.get(position).isExpandable();
+
+        if (currencyExpanded) {
+            holder.dropDown.setImageResource(R.drawable.ic_baseline_arrow_drop_up);
+            holder.expandedCurrencyInfo.setVisibility(View.VISIBLE);
+        }
+        else {
+            holder.dropDown.setImageResource(R.drawable.ic_baseline_arrow_drop_down);
+            holder.expandedCurrencyInfo.setVisibility(View.GONE);
+        }
+
+        // Change expanded status
+        holder.dropDown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currencies.get(position).setExpandable(!currencies.get(position).isExpandable());
+                notifyDataSetChanged();
+            }
+        });
 
     }
 
@@ -143,6 +165,8 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 
+        private LinearLayout expandedCurrencyInfo;
+
         private TextView currencyCharCode, currencyValue, smallCurrencyValue, previousCurrencyValue, nominal, name, numCode;
 
         private ImageView currencyCountryImg;
@@ -160,6 +184,7 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
             name = itemView.findViewById(R.id.currencyNameTxt);
             currencyCountryImg = itemView.findViewById(R.id.currencyCountryImg);
             dropDown = itemView.findViewById(R.id.dropDownImgButton);
+            expandedCurrencyInfo = itemView.findViewById(R.id.curencyExtraDataLinLay);
         }
     }
 }

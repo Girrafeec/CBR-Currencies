@@ -3,6 +3,7 @@ package com.girrafeecstud.cbrcurrencies;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
@@ -37,6 +38,9 @@ public class Currency implements Serializable {
 
     @ColumnInfo (name = "previousvalue")
     private double previousValue;
+
+    @Ignore
+    private boolean isExpandable = false;
 
     public Currency(LocalDateTime timeStamp, String currencyId, String numCode,
                     String charCode, int nominal, String name, double value, double previousValue) {
@@ -112,5 +116,13 @@ public class Currency implements Serializable {
 
     public void setPreviousValue(double previousValue) {
         this.previousValue = previousValue;
+    }
+
+    public boolean isExpandable() {
+        return isExpandable;
+    }
+
+    public void setExpandable(boolean expandable) {
+        isExpandable = expandable;
     }
 }
