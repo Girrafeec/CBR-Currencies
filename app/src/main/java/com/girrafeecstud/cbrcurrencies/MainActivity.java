@@ -79,8 +79,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private CurrencyAdapter currencyAdapter;
 
-    private ArrayList<Currency> currencyDataArrayList = new ArrayList<Currency>();
-
     private long backPressedTime;
 
     public final static String CBR_CURRENCIES_JSON_URL = "https://www.cbr-xml-daily.ru/daily_json.js";
@@ -101,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-        backToast = Toast.makeText(this, "Для выхода нажмите назад ещё раз", Toast.LENGTH_SHORT);
+        backToast = Toast.makeText(this, R.string.exit_message, Toast.LENGTH_SHORT);
         backToast.show();
 
         backPressedTime = System.currentTimeMillis();
@@ -129,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initUiValues();
 
         // When app starts check if we have data in database
-        //TODO добавить проверку на наличие соединения в случае попытки получения json
         if (isDatabaseEmpty())
             getCurrenciesJson();
         else
@@ -194,6 +191,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         swipeRefreshLayout = findViewById(R.id.refreshCurrenciesLayout);
         bottomNavigationView = findViewById(R.id.mainBottomNavigationView);
         noInternetLinLay = findViewById(R.id.noInternetConnectionLinLay);
+
+        // Setting swipe refresh layout color
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.indigo_craola_blue));
     }
 
     // Setting info about last fetcing date and time
@@ -338,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         new FetchCurrenciesJson().execute();
         }
         else {
-            Toast.makeText(MainActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.no_internet, Toast.LENGTH_SHORT).show();
             if (isDatabaseEmpty()) {
                 swipeRefreshLayout.setVisibility(View.GONE);
                 noInternetLinLay.setVisibility(View.VISIBLE);
@@ -374,6 +374,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             setFetchingInfo();
             addCurrenciesToRecView();
             cancelAllNotifications();
+            Toast.makeText(MainActivity.this, R.string.data_updated, Toast.LENGTH_SHORT).show();
         }
 
         @Override

@@ -3,12 +3,12 @@
 
     <item
         android:id="@+id/rateMenuItem"
-        android:title="Курс"
+        android:title="@string/rate_menu"
         android:icon="@drawable/ic_rate"/>
 
     <item
         android:id="@+id/converterMenuItem"
-        android:title="Конвертер"
+        android:title="@string/converter_menu"
         android:icon="@drawable/ic_converter"/>
 
 </menu>

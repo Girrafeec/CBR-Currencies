@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">CBR Currencies</string>
+    <string name="exit_message">Click again to exit</string>
+    <string name="updated">Updated</string>
+    <string name="in_time">at</string>
+    <string name="no_internet">No internet connection</string>
+    <string name="data_updated">Data has been updated</string>
+    <string name="name">Name: </string>
+    <string name="num_code">Number code: </string>
+    <string name="char_code">Char code: </string>
+    <string name="nominal">Nominal: </string>
+    <string name="value">Value: </string>
+    <string name="prev_value">Previous value: </string>
+    <string name="rouble_sign"> ₽</string>
+    <string name="value_update">Value update</string>
+    <string name="value_update_message">Central Bank currency rates updated</string>
+    <string name="update_error">Unable to update currency rates of Central Bank without internet</string>
+    <string name="converter_menu">Converter</string>
+    <string name="rate_menu">Rate</string>
+    <string name="try_again">Try again</string>
+    <string name="try_again_title">No internet connection</string>
+    <string name="try_again_message">Please check your connection and try again</string>
+    <string name="get">Get</string>
+    <string name="currency_converter">Currency converter</string>
+    <string name="convert">convert</string>
+    <string name="no_data_for_convertion_title">No data for convertion</string>
+    <string name="no_data_for_convertion_message">Please get currency rate data from Central Bank website</string>
 </resources>

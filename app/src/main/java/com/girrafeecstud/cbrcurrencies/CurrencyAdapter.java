@@ -45,14 +45,14 @@ public class CurrencyAdapter extends RecyclerView.Adapter<CurrencyAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull CurrencyAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.currencyCharCode.setText(currencies.get(position).getCharCode());
-        holder.currencyValue.setText(String.valueOf(currencies.get(position).getValue()) + " ₽");
+        holder.currencyValue.setText(String.valueOf(currencies.get(position).getValue()) + " " + context.getResources().getString(R.string.rouble_sign));
         holder.currencyCountryImg.setImageResource(getCountryImage(currencies.get(position).getNumCode()));
 
-        holder.name.setText("Наименование: " + currencies.get(position).getName());
-        holder.numCode.setText("Цифровой код: " + currencies.get(position).getNumCode());
-        holder.nominal.setText("Единиц: " + String.valueOf(currencies.get(position).getNominal()));
-        holder.smallCurrencyValue.setText("Курс: " + String.valueOf(currencies.get(position).getValue()) + " ₽");
-        holder.previousCurrencyValue.setText("Предыдущий курс: " + String.valueOf(currencies.get(position).getPreviousValue()) + " ₽");
+        holder.name.setText(context.getResources().getString(R.string.name) + " " + currencies.get(position).getName());
+        holder.numCode.setText(context.getResources().getString(R.string.num_code) + " " + currencies.get(position).getNumCode());
+        holder.nominal.setText(context.getResources().getString(R.string.nominal) + " " + String.valueOf(currencies.get(position).getNominal()));
+        holder.smallCurrencyValue.setText(context.getResources().getString(R.string.value) + " " + String.valueOf(currencies.get(position).getValue()) + " " + context.getResources().getString(R.string.rouble_sign));
+        holder.previousCurrencyValue.setText(context.getResources().getString(R.string.prev_value) + " " + String.valueOf(currencies.get(position).getPreviousValue()) + " " + context.getResources().getString(R.string.rouble_sign));
 
         boolean currencyExpanded = currencies.get(position).isExpandable();
 

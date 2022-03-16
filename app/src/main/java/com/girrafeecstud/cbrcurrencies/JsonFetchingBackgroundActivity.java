@@ -69,7 +69,7 @@ public class JsonFetchingBackgroundActivity extends BroadcastReceiver {
 
         // Setting bitmap for large icon
         BitmapFactory.Options options = new BitmapFactory.Options();
-        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher_foreground, options);
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_app_notification_icon, options);
 
         NotificationChannel channel = new NotificationChannel("FetcingCurrenciesNotification", "FetcingCurrenciesNotification", NotificationManager.IMPORTANCE_DEFAULT);
         NotificationManager manager = context.getSystemService(NotificationManager.class);
@@ -81,10 +81,10 @@ public class JsonFetchingBackgroundActivity extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "FetcingCurrenciesNotification")
-                .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO поставить иконку приложения в конце
+                .setSmallIcon(R.drawable.ic_app_notification_icon)
                 .setLargeIcon(bitmap)
-                .setContentTitle("Обновление курсов")
-                .setContentText("Курсы валют ЦБ обновлены")
+                .setContentTitle(context.getResources().getString(R.string.value_update))
+                .setContentText(context.getResources().getString(R.string.value_update_message))
                 .setContentIntent(resultPendingIntent)
                 .setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_LIGHTS)
@@ -101,7 +101,7 @@ public class JsonFetchingBackgroundActivity extends BroadcastReceiver {
 
         // Setting bitmap for large icon
         BitmapFactory.Options options = new BitmapFactory.Options();
-        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher_foreground, options);
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_app_notification_icon, options);
 
         NotificationChannel channel = new NotificationChannel("FetcingCurrenciesNotification", "FetcingCurrenciesNotification", NotificationManager.IMPORTANCE_DEFAULT);
         NotificationManager manager = context.getSystemService(NotificationManager.class);
@@ -113,12 +113,12 @@ public class JsonFetchingBackgroundActivity extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "FetcingCurrenciesNotification")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_app_notification_icon)
                 .setLargeIcon(bitmap)
-                .setContentTitle("Обновление курсов")
-                .setContentText("Невозможно обновить курсы валют ЦБ без наличия доступа в интернет")
+                .setContentTitle(context.getResources().getString(R.string.value_update))
+                .setContentText(context.getResources().getString(R.string.update_error))
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Невозможно обновить курсы валют ЦБ без наличия доступа в интернет"))
+                        .bigText(context.getResources().getString(R.string.update_error)))
                 .setContentIntent(resultPendingIntent)
                 .setOngoing(true)
                 .setAutoCancel(false)

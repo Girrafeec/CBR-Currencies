@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">CBR Currencies</string>
+    <string name="exit_message">Для выхода нажмите назад ещё раз</string>
+    <string name="updated">Обновлено</string>
+    <string name="in_time">в</string>
+    <string name="no_internet">Нет соединения с интернетом</string>
+    <string name="data_updated">Данные обновлены</string>
+    <string name="name">Наименование: </string>
+    <string name="num_code">Цифровой код: </string>
+    <string name="char_code">Буквенный код: </string>
+    <string name="nominal">Единиц: </string>
+    <string name="value">Курс: </string>
+    <string name="prev_value">Предыдущий курс: </string>
+    <string name="rouble_sign"> ₽</string>
+    <string name="value_update">Обновление курсов</string>
+    <string name="value_update_message">Курсы валют ЦБ обновлены</string>
+    <string name="update_error">Невозможно обновить курсы валют ЦБ без доступа в интернет</string>
+    <string name="try_again_message">Пожалуйста, проверьте подключение к интернету и повторите попытку</string>
+    <string name="get">загрузить</string>
+    <string name="currency_converter">Конвертация валют</string>
+    <string name="convert">результат</string>
+    <string name="no_data_for_convertion_title">Отсутствуют данные для конвертации</string>
+    <string name="no_data_for_convertion_message">Пожалуйста, загрузите данные о курсах валют с сайта ЦБ</string>
+    <string name="converter_menu">Конвертер</string>
+    <string name="rate_menu">Курс</string>
+    <string name="try_again">повторить</string>
+    <string name="try_again_title">Нет соединения с интернетом</string>
+</resources>

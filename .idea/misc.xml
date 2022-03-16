@@ -3,18 +3,42 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable-anydpi/ic_notification_icon.xml" value="0.20185185185185187" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/blue_rounded_recktangle.xml" value="0.20092592592592592" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/bottom_nav_view_background.xml" value="0.2101851851851852" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/convert_button_passive.xml" value="0.2203125" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/convert_button_pressed.xml" value="0.2203125" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/convert_button_selector.xml" value="0.2203125" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/convert_button_text_selector.xml" value="0.2203125" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/currency_item_background.xml" value="0.2101851851851852" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/cursor_color.xml" value="0.10885416666666667" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/enter_currency_text_selector.xml" value="0.20092592592592592" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/flag_rounded_recktangle.xml" value="0.2101851851851852" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/ic_app_notification_icon.xml" value="0.20185185185185187" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/ic_baseline_arrow_drop_down.xml" value="0.2101851851851852" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/ic_baseline_arrow_drop_up.xml" value="0.2101851851851852" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/ic_baseline_autorenew.xml" value="0.20185185185185187" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/ic_baseline_autorenew_pressed.xml" value="0.20185185185185187" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/ic_baseline_signal_wifi_off.xml" value="0.2101851851851852" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/ic_cancel_glass_loupe_icon.xml" value="0.2203125" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.1125" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/ic_ru.xml" value="0.20092592592592592" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/renew_selector.xml" value="0.20185185185185187" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/shadow_background.xml" value="0.2101851851851852" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/spinner_blue_rounded_recktangle.xml" value="0.1734375" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/splash_screen.xml" value="0.16" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/text_focused_background.xml" value="0.2203125" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/text_not_focused_background.xml" value="0.20092592592592592" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/drawable/white_rounded_recktangle.xml" value="0.20092592592592592" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/layout-land/activity_converter.xml" value="0.35315315315315315" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/layout-land/activity_main.xml" value="0.2669616519174041" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/layout-land/currency_item.xml" value="0.25" />
-        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/layout/activity_converter.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/layout/activity_converter.xml" value="0.33" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/layout/currency_item.xml" value="0.33" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/layout/custom_currencies_spinner_item.xml" value="0.33" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/menu/main_bottom_nav_bar_menu.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/1/Desktop/Android Projects/CBR-Currencies/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.20092592592592592" />
       </map>
     </option>
   </component>

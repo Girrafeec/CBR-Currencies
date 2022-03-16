@@ -5,31 +5,30 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class ConverterActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Spinner convertFromSpinner, convertToSpinner;
 
-    private EditText convertFromEditText;
+    private EditText convertFromEditText, convertResult;
 
-    private TextView convertResult;
-
-    private Button convertButton;
+    private Button convertButton, goToMainActivity;
 
     private ImageButton changeSpinners;
 
@@ -37,11 +36,13 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
 
     private Toast backToast;
 
+    private LinearLayout noDataError, converterLayout;
+
     private CurrencyDataBase currencyDataBase;
 
     private ArrayList<Currency> currenciesArrayList;
 
-    private ArrayList<String> rubArrayList;
+    private ArrayList<Currency> rubArrayList;
 
     private long backPressedTime;
 
@@ -58,6 +59,10 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
             case R.id.changeSpinnersImgButton:
                 changeConvertSpinners();
                 break;
+            case R.id.noDataGoToMainBtn:
+                ConverterActivity.this.startActivity(new Intent(ConverterActivity.this, MainActivity.class));
+                overridePendingTransition(0,0);
+                break;
             default:
                 break;
         }
@@ -73,7 +78,7 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
             return;
         }
 
-        backToast = Toast.makeText(this, "Для выхода нажмите назад ещё раз", Toast.LENGTH_SHORT);
+        backToast = Toast.makeText(this, R.string.exit_message, Toast.LENGTH_SHORT);
         backToast.show();
 
         backPressedTime = System.currentTimeMillis();
@@ -86,15 +91,28 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
 
         initDataBase();
 
-        fillCurrenciesArrayList();
-
         initUiValues();
 
-        fillConvertFromSpinner();
-        fillConvertToSpinner();
+        fillTextFields(savedInstanceState);
+
+        fillCurrenciesArrayList();
+
+        // Show empty data message if we have no data
+        if (isDatabaseEmpty()) {
+            converterLayout.setVisibility(View.GONE);
+            noDataError.setVisibility(View.VISIBLE);
+        }
+        // Else show converter layout
+        else{
+            converterLayout.setVisibility(View.VISIBLE);
+            noDataError.setVisibility(View.GONE);
+            fillConvertFromSpinner();
+            fillConvertToSpinner();
+        }
 
         convertButton.setOnClickListener(this);
         changeSpinners.setOnClickListener(this);
+        goToMainActivity.setOnClickListener(this);
 
         bottomNavigationView.setSelectedItemId(R.id.converterMenuItem);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -114,6 +132,7 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
+        // First soinner actions
         convertFromSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -135,6 +154,7 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
+        // Second spinner actions
         convertToSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -157,6 +177,23 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
         });
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString("convertFrom", convertFromEditText.getText().toString());
+        outState.putString("convertTo", convertResult.getText().toString());
+
+    }
+
+    // Fill text fields after rotating screen
+    private void fillTextFields(Bundle savedInstanceState){
+        if (savedInstanceState != null) {
+            convertFromEditText.setText(savedInstanceState.getString("convertFrom"));
+            convertResult.setText(savedInstanceState.getString("convertTo"));
+        }
+    }
+
     // Initialization of UI values
     private void initUiValues(){
         convertFromEditText = findViewById(R.id.enterCurrencyNumberEdtTxt);
@@ -165,7 +202,13 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
         convertToSpinner = findViewById(R.id.convertToSpinner);
         convertButton =  findViewById(R.id.convertBtn);
         changeSpinners = findViewById(R.id.changeSpinnersImgButton);
+        goToMainActivity = findViewById(R.id.noDataGoToMainBtn);
         bottomNavigationView = findViewById(R.id.mainBottomNavigationView);
+        noDataError = findViewById(R.id.noDataLinLay);
+        converterLayout = findViewById(R.id.converterLinLay);
+
+        // Disable opportunity to enter text to convert result edit text
+        convertResult.setRawInputType(InputType.TYPE_NULL);
     }
 
     // Initialization of database
@@ -173,11 +216,20 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
         currencyDataBase = CurrencyDataBase.getInstance(ConverterActivity.this);
     }
 
+    // Check if database is empty
+    private boolean isDatabaseEmpty(){
+
+        if (currencyDataBase.currencyDao().getAll().isEmpty())
+            return true;
+        return false;
+
+    }
+
     // Filling currencies Array List
     private void fillCurrenciesArrayList(){
         currenciesArrayList = new ArrayList<>(currencyDataBase.currencyDao().getAll());
         rubArrayList = new ArrayList<>();
-        rubArrayList.add("RUB");
+        rubArrayList.add(new Currency(LocalDateTime.parse("2001-06-30T00:00"), "", "643", "RUS", 0, "", 0, 0));
     }
 
     // Filling first Spinner. spinnerMode = 0 > filling with one item "RUB", spinnerMode = 1 > filling with currencies list
@@ -185,10 +237,9 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
 
         switch (converterMode){
             case 0:
-                ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                        ConverterActivity.this, android.R.layout.simple_spinner_dropdown_item,
-                        rubArrayList);
-                convertFromSpinner.setAdapter(spinnerAdapter);
+                CurrenciesSpinnerAdapter currenciesRusSpinnerAdapter = new CurrenciesSpinnerAdapter(ConverterActivity.this,
+                        android.R.layout.simple_spinner_dropdown_item, rubArrayList);
+                convertFromSpinner.setAdapter(currenciesRusSpinnerAdapter);
                 break;
             case 1:
                 CurrenciesSpinnerAdapter currenciesSpinnerAdapter = new CurrenciesSpinnerAdapter(ConverterActivity.this,
@@ -210,10 +261,9 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
                 convertToSpinner.setAdapter(currenciesSpinnerAdapter);
                 break;
             case 1:
-                ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                        ConverterActivity.this, android.R.layout.simple_spinner_dropdown_item,
-                        rubArrayList);
-                convertToSpinner.setAdapter(spinnerAdapter);
+                CurrenciesSpinnerAdapter currenciesRusSpinnerAdapter = new CurrenciesSpinnerAdapter(ConverterActivity.this,
+                        android.R.layout.simple_spinner_dropdown_item, rubArrayList);
+                convertToSpinner.setAdapter(currenciesRusSpinnerAdapter);
                 break;
             default:
                 break;
@@ -252,11 +302,11 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-    // divide currencies
+    // Divide currencies
     private void divideValute(){
 
-        if (convertFromEditText.getText().equals(""))
-            numerator = Double.parseDouble(convertFromEditText.getHint().toString());
+        if (convertFromEditText.getText().toString().isEmpty())
+            numerator = 0;
         else
             numerator = Double.parseDouble(convertFromEditText.getText().toString());
 
@@ -267,8 +317,8 @@ public class ConverterActivity extends AppCompatActivity implements View.OnClick
     // Multiple currencies
     private void multipleValute(){
 
-        if (convertFromEditText.getText().equals(""))
-            firstFactor = Double.parseDouble(convertFromEditText.getHint().toString());
+        if (convertFromEditText.getText().toString().isEmpty())
+            firstFactor = 0;
         else
             firstFactor = Double.parseDouble(convertFromEditText.getText().toString());
 

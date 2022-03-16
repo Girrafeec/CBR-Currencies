@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:state_focused="false"
+        android:drawable="@drawable/text_not_focused_background"/>
+
+    <item
+        android:state_focused="true"
+        android:drawable="@drawable/text_focused_background"/>
+
+</selector>
